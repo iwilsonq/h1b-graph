@@ -55,7 +55,7 @@ class CountyMap extends Component {
   }
 
   render() {
-    
+
     if (!this.props.usTopoJson) {
       return null;
     }
@@ -86,4 +86,4 @@ class CountyMap extends Component {
   }
 }
 
-export { CountyMap };
+export default CountyMap;
