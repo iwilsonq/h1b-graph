@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
+import Axis from './Axis';
 
 const HistogramBar = ({ percent, x, y, width, height }) => {
   let translate =  `translate(${x}, ${y})`,
@@ -86,6 +87,12 @@ class Histogram extends Component {
         <g className="bars">
           {bars.map(this.makeBar.bind(this))}
         </g>
+        <Axis
+          x={this.props.axisMargin - 3}
+          y={0}
+          data={bars}
+          scale={this.yScale}
+        />
       </g>
     );
   }
