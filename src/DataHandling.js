@@ -12,7 +12,7 @@ const cleanIncomes = d => ({
 const dateParse = d3.timeParse('%m/%d/%Y');
 
 const cleanSalary = d => {
-  if (d['base salary'] || Number(d['base salary']) > 300000) {
+  if (!d['base salary'] || Number(d['base salary']) > 300000) {
     return null;
   }
 
@@ -45,14 +45,14 @@ export const loadAllData = (callback = _.noop) => {
   .defer(d3.csv, 'data/h1bs-2012-2016-shortened.csv', cleanSalary)
   .defer(d3.tsv, 'data/us-state-names.tsv', cleanUSStateName)
   .await((error, us, countyNames, medianIncomes, techSalaries, USstateNames) => {
-    countyNames = countyNames.map(({ id, name }) => { id: Number(id), name });
+    countyNames = countyNames.map(({ id, name }) => ({ id: Number(id), name: name }));
 
     let medianIncomesMap = {};
 
     medianIncomes.filter(d => _.find(countyNames, { name: d['countyName'] }))
       .forEach(d => {
-        d['countyId'] = _.find(countyNames, { name: d['countyName']}).id;
-        medianIncomesMap[d.countyId] = d;
+        d['countyID'] = _.find(countyNames, { name: d['countyName']}).id;
+        medianIncomesMap[d.countyID] = d;
       });
 
     techSalaries = techSalaries.filter(d => !_.isNull(d));

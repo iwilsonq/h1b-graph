@@ -5,6 +5,8 @@ import _ from 'lodash';
 import Preloader from './components/Preloader';
 import { loadAllData } from './DataHandling';
 
+import { CountyMap } from './components/CountyMap';
+
 class App extends Component {
   state = {
     techSalaries: [],
@@ -16,19 +18,54 @@ class App extends Component {
     loadAllData(data => this.setState(data));
   }
 
-  render() {
+  countyValue(county, techSalariesMap) {
+    const medianHousehold = this.state.medianIncomes[county.id],
+          salaries = techSalariesMap[county.name];
 
-    if (this.state.techSalaries.length) {
+    if (!medianHousehold || !salaries) {
+      return null;
+    }
+
+    const median = d3.median(salaries, d => d.base_salary);
+
+    return {
+      countyID: county.id,
+      value: median - medianHousehold.medianIncome
+    };
+  }
+
+  render() {
+    console.log(this.state);
+    if (!this.state.techSalaries.length) {
       return (
-        <div className="App container">
-          <h1>Loaded {this.state.techSalaries.length} salaries</h1>
-        </div>
+        <Preloader />
       );
     }
 
+    const filteredSalaries = this.state.techSalaries,
+          filteredSalariesMap = _.groupBy(filteredSalaries, 'countyID'),
+          countyValues = this.state.countyNames.map(
+            county => this.countyValue(county, filteredSalariesMap)
+          ).filter(d => !_.isNull(d));
+
+    let zoom = null;
+    
     return (
-      <Preloader />
+      <div className="App container">
+        <svg width="1100" height="500">
+          <CountyMap usTopoJson={this.state.usTopoJson}
+            USstateNames={this.state.USstateNames}
+            values={countyValues}
+            x={0}
+            y={0}
+            width={500}
+            height={500}
+            zoom={zoom}
+          />
+        </svg>
+      </div>
     );
+
   }
 }
 
